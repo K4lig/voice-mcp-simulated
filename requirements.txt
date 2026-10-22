@@ -1,0 +1,7 @@
+strands-agents[openai,ollama]
+mcp>=2.1,<2.2
+starlette
+uvicorn
+boto3
+httpx
+pytest
