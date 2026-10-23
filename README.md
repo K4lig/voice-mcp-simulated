@@ -24,10 +24,10 @@ voice-mcp-sim gives you that loop on your laptop in a minute.
 ## Quickstart
 
 ```bash
-git clone https://github.com/K4lig/voice-mcp-sim && cd voice-mcp-sim
-python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
+git clone https://github.com/K4lig/voice-mcp-simulated && cd voice-mcp-simulated
+python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
 cp .env.example .env   # set MCP_URL and a model key, then:
-source .env && python -m voice_mcp_sim
+source .env && python3 -m voice_mcp_sim
 ```
 
 Open http://127.0.0.1:8080, click the mic, allow microphone access, and ask something.
