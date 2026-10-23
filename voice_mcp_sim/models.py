@@ -21,9 +21,12 @@ def build_model():
     if name == "groq":
         from strands.models.openai import OpenAIModel
         return OpenAIModel(
-            client_args={"api_key": os.environ["GROQ_API_KEY"], "base_url": "https://api.groq.com/openai/v1"},
+            client_args={"api_key": os.environ["GROQ_API_KEY"], "base_url": os.getenv("GROQ_BASE_URL", "https://api.groq.com/openai/v1")},
             model_id=os.getenv("GROQ_MODEL", "openai/gpt-oss-120b"),
             params={"temperature": 0.2},
+            # Streaming gpt-oss on Groq can repeat the final text and lose tool calls; one full
+            # response at a time is reliable, and a voice reply is spoken whole anyway.
+            stream=os.getenv("GROQ_STREAM", "off").lower() in {"on", "1", "true"},
         )
     if name == "ollama":
         from strands.models.ollama import OllamaModel

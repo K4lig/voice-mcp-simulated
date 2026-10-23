@@ -59,7 +59,8 @@ The AWS identity needs the `polly:SynthesizeSpeech` permission.
 | `MCP_URL` | `http://127.0.0.1:8000/mcp` | Any MCP server speaking Streamable HTTP |
 | `MCP_TOKEN` | – | Optional, sent as `Authorization: Bearer …` |
 | `MODEL_PROVIDER` | `bedrock` | `bedrock`, `groq` or `ollama` |
-| `GROQ_API_KEY` / `GROQ_MODEL` | – / `openai/gpt-oss-120b` | For `groq` (free key at console.groq.com) |
+| `GROQ_API_KEY` / `GROQ_MODEL` | – / `openai/gpt-oss-120b` | For `groq` (free key at console.groq.com). `GROQ_BASE_URL` points it at any OpenAI-compatible API |
+| `VMS_DEBUG` | – | Print each turn's raw agent messages in the terminal |
 | `BEDROCK_MODEL_ID` / `AWS_REGION` | Claude Haiku 4.5 / `us-east-1` | For `bedrock`; uses your AWS credentials |
 | `OLLAMA_MODEL` | `qwen2.5:7b` | For `ollama`; needs ~8 GB RAM |
 | `WHISPER_MODEL` / `WHISPER_LANGUAGE` | `whisper-large-v3-turbo` / `en` | Server-side voice input |

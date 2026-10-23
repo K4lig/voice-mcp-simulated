@@ -176,3 +176,13 @@ def test_polly_falls_back_to_neural(monkeypatch):
     monkeypatch.setattr(boto3, "client", lambda *a, **k: FakePolly())
     assert app_module.polly_speak("hi", "Ruth") == b"mp3"
     assert engines == ["generative", "neural"]
+
+
+def test_clean_reply_says_duplicated_answers_once():
+    from voice_mcp_sim.app import clean_reply
+
+    assert clean_reply("web-frontend looks healthy. web-frontend looks healthy.") == "web-frontend looks healthy."
+    assert clean_reply("Sorry, my mistake.Sorry, my mistake.") == "Sorry, my mistake."
+    assert clean_reply("Done.\nDone.\n") == "Done."
+    assert clean_reply("checkout-api is degraded.") == "checkout-api is degraded."
+    assert clean_reply("No. No, wait.") == "No. No, wait."

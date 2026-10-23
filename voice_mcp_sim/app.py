@@ -24,8 +24,10 @@ from .models import build_model, provider
 STATIC = Path(__file__).parent / "static"
 
 DEFAULT_PROMPT = """You are {name}, a voice assistant. Your reply is spoken aloud, so:
-- Use the available tools to answer. If a tool result has a 'speech' field, say exactly that sentence.
-- Reply with one or two short sentences. No lists, no markdown, no notes in parentheses.
+- Always call a tool to answer questions about live state; never answer from memory or from
+  earlier turns, because the data changes. If a tool result has a 'speech' field, say exactly that text,
+  once, even if it has several sentences.
+- Otherwise reply with one or two short sentences. No lists, no markdown, no notes in parentheses.
 - Do not offer extra help and do not add follow-up suggestions.
 If a tool asks for confirmation before acting, read its preview to the user and stop.
 Only call it again to confirm if the user's latest message clearly says yes. Never invent
@@ -37,6 +39,21 @@ def system_prompt() -> str:
     if path:
         return Path(path).read_text()
     return DEFAULT_PROMPT.format(name=os.getenv("ASSISTANT_NAME", "Assistant"))
+
+
+# ---------------------------------------------------------------- reply cleanup
+def clean_reply(text: str) -> str:
+    """Some model/provider combinations return the answer twice ("X. X." or "X.X."). Say it once."""
+    text = text.strip()
+    half = len(text) // 2
+    for cut in (half, half + 1, half - 1):
+        a, b = text[:cut].strip(), text[cut:].strip()
+        if a and a == b:
+            return a
+    lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
+    if len(lines) > 1 and len(set(lines)) == 1:
+        return lines[0]
+    return text
 
 
 # ---------------------------------------------------------------- tool trace
@@ -205,9 +222,11 @@ def create_app(agent_factory=None, tools_loader=None, transcriber=None, speaker=
         except Exception as exc:
             return JSONResponse({"session_id": session_id, "error": f"{type(exc).__name__}: {exc}"}, status_code=502)
         new_messages = getattr(agent, "messages", [])[before:]
+        if os.getenv("VMS_DEBUG"):
+            print("---- new messages ----\n" + json.dumps(new_messages, indent=1, default=str)[:6000], flush=True)
         return JSONResponse({
             "session_id": session_id,
-            "reply": str(reply).strip(),
+            "reply": clean_reply(str(reply)),
             "tools": tool_trace(new_messages),
             "seconds": round(time.time() - started, 2),
         })
